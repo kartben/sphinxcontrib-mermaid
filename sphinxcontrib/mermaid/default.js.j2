@@ -20,22 +20,19 @@ const initStyles = () => {
 
 // Detect if page has dark background
 const isDarkTheme = () => {
+    const targets = [document.documentElement, document.body];
+    const themeAttrs = ['data-theme', 'data-mode', 'data-color-mode', 'data-bs-theme'];
+    const hasThemeValue = (value) => targets.some((el) =>
+        el.classList.contains(value) || themeAttrs.some((attr) => el.getAttribute(attr) === value)
+    );
+
     // We use a set of heuristics:
     // 1. Check for common dark mode classes or attributes
     // 2. Check computed background color brightness
-    if (document.documentElement.classList.contains('dark') ||
-        document.documentElement.getAttribute('data-theme') === 'dark' ||
-        document.body.classList.contains('dark') ||
-        document.body.getAttribute('data-theme') === 'dark') {
-        // console.log("Dark theme detected via class/attribute");
-        return true;
-    }
-    if (document.documentElement.classList.contains('light') ||
-        document.documentElement.getAttribute('data-theme') === 'light' ||
-        document.body.classList.contains('light') ||
-        document.body.getAttribute('data-theme') === 'light') {
-        // console.log("Light theme detected via class/attribute");
-        return false;
+    const explicitTheme = ['dark', 'light'].find(hasThemeValue);
+    if (explicitTheme) {
+        // console.log("Theme detected via class/attribute:", explicitTheme);
+        return explicitTheme === 'dark';
     }
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         // console.log("Dark theme detected via prefers-color-scheme");
@@ -252,11 +249,11 @@ const load = async () => {
     const themeObserver = new MutationObserver(reRunIfThemeChanges);
     themeObserver.observe(document.documentElement, {
         attributes: true,
-        attributeFilter: ['class', 'style', 'data-theme']
+        attributeFilter: ['class', 'style', 'data-theme', 'data-mode', 'data-color-mode', 'data-bs-theme']
     });
     themeObserver.observe(document.body, {
         attributes: true,
-        attributeFilter: ['class', 'style', 'data-theme']
+        attributeFilter: ['class', 'style', 'data-theme', 'data-mode', 'data-color-mode', 'data-bs-theme']
     });
 };
 
